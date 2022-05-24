@@ -4,9 +4,9 @@
 
 # Clear workspace
 rm(list = ls())
- 
+
 # Set working directory
-setwd("/Users/jbaafi/Documents/climate-and-mosquitoes/useful files")
+#setwd("/Users/jbaafi/Documents/climate-and-mosquitoes/useful files")
 
 # Load packages 
 pacman::p_load(pacman, GillespieSSA, ssar, rio)
@@ -26,10 +26,11 @@ mu_P <- params[4]
 mu_A <- params[5]
 
 X <- matrix(c(E = 100, L = 100, P = 100, A = 100), ncol = 4)
-E <- X[,1]
-L <- X[,2]
-P <- X[,3]
-A <- X[,4]
+E <- max(X[,1], 0)
+L <- max(X[,2], 0)
+P <- max(X[,3], 0)
+A <- max(X[,4], 0)
+
 
 pfun <- function(t, X, params){
 
@@ -37,7 +38,7 @@ pfun <- function(t, X, params){
   matreturn  <- matrix(NA, nrow = length(t), ncol = 8)
   
   # Create temperature function
-  temp <- function(t){return(8.91910 - 5.59158*sin(2*pi*t/365) - 11.93443*cos(2*pi*t/365) + rnorm(1, mean = 0, sd = 1))} # replace with the right estimated parameter values
+  temp <- function(t){return(8.91910 - 5.59158*sin(2*pi*t/365) - 11.93443*cos(2*pi*t/365))} # replace with the right estimated parameter values
   
   # Create rainfall function as a random event
   precip <- function(t){return(sample(df$precip.val, size = 1, replace = TRUE, prob = df$lnorm.pdf))} 
@@ -88,3 +89,6 @@ sim <- ssa(X, pfun, v, params, tmin, tmax, nsim, print.time = FALSE,
                   fname = "sim2.txt")
 
 
+plot(sim$Time, sim$Var2, "l")
+plot(sim$Time, sim$Var3, "l")
+plot(sim$Time, sim$Var4, "l")

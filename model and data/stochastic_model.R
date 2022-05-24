@@ -6,7 +6,7 @@
 rm(list = ls())
 
 # Set working directory
-setwd("/Users/jbaafi/Documents/climate-and-mosquitoes/useful files")
+#setwd("/Users/jbaafi/Documents/climate-and-mosquitoes/useful files")
 
 # Load packages with pacman
 pacman::p_load(pacman, rio, GillespieSSA, ssar)
@@ -23,10 +23,10 @@ mu_P <- params[4]
 mu_A <- params[5]
 
 X <- matrix(c(E = 100, L = 100, P = 100, A = 100), ncol = 4)
-E <- X[,1]
-L <- X[,2]
-P <- X[,3]
-A <- X[,4]
+E <- max(X[,1], 0)
+L <- max(X[,2], 0)
+P <- max(X[,3], 0)
+A <- max(X[,4], 0)
 
 # Create propensity function
 pfun <- function(t, X, params){
@@ -76,7 +76,7 @@ v <- matrix(c(1,-1, -1, 0, 0, 0, 0, 0,
 
 # Start and end times
 tmin       <- 0
-tmax       <- 100
+tmax       <- 50
 
 # Number of simulations
 nsim       <- 2
