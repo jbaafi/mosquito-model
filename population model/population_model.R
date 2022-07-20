@@ -13,11 +13,8 @@ pacman::p_load(pacman, deSolve, tidyverse, dplyr, rio)
 # Load daily rainfall data
 precip <- import("precipitation.csv")
 
-# Define a function for rainfall/precipitation
-Rain <- function(t){
-  # I am randomly samplying from a dataset with a log-normal probability distribution
-  R <- sample(precip$precip.val, 1, replace = T, prob=precip$lnorm.pdf)
-}
+# Daily rainfall is considered as a random event
+Rain <- sample(precip$precip.val, length(t), replace = T, prob = precip$lnorm.pdf)
 
 # A function for daily temperature.
 Temp <-function(t){
@@ -41,12 +38,11 @@ pop.model <- function(t, y, ...){
   
   # A function for daily rainfall. This is a stochastic process.
   #Rain <- sample(precip$precip.val, length(t), replace = T, prob=precip$lnorm.pdf)
-  Rain <- Rain(t)
-  
+
   # Oviposition rate as a function of temperature based on Abdelrazec and Gumel, 2017
-  rhoAo = exp(-0.015*(Temp-20)^2)
+  #rhoAo = exp(-0.015*(Temp-22)^2)
   # Oviposition as a function of temperature & rainfall. 
-  #rhoAo = 4*exp(-0.015*(Temp-22)^2)*(1+1.2)*exp(-0.05*(Rain-10)^2)/(1.2+exp(-0.05*(Rain-10)^2)) 
+  rhoAo = exp(-0.015*(Temp-22)^2)*(1+1.2)*exp(-0.05*(Rain-10)^2)/(1.2+exp(-0.05*(Rain-10)^2)) 
   
   # Egg hatching/development function based on Abdelrazec & Gumel, 2017
   FE <- 0.5*exp(-0.011*(Temp-22)^2)
@@ -62,34 +58,37 @@ pop.model <- function(t, y, ...){
   #FP <- 0.5*exp(-0.014*(Temp-22)^2)*(1+1.5)*exp(-0.05*(Rain-15)^22)/(1.5+exp(-0.05*(Rain-15)^2))
   
   # Transition rate from host-seeking adult into resting state is not climate dependent. 
-  # As far as they can get a bite, they go to rest. 
-  FAh <- 0.46 # This is just a transition rate not a development rate so is a constant
+  # As far as they can get a bite, they go to rest. This is just a transition rate not a 
+  # development rate so is a constant.
+  FAh <- 0.46 + 0*exp(-0.01*(Temp(t)-22)^2) # Lutambi et al., 2013 (0.3 - 0.5 from Abiodun et al., 2016)
   
   # Transition rate from resting state to oviposition seeking site state. It is a constant.
-  FAr <- 0.43
+  FAr <- 0.43 + 0*exp(-0.01*(Temp(t)-22)^2) # Lutambi et al., 2013 (0.3 - 0.5 from Abiodun et al., 2016)
   
   # Egg mortality based on Abdelrazec & Gumel
-  muE1 <- 0.001*(Temp-22)^2 + 0.15
+  muE1 <- 0.001*(Temp-20)^2 + 0.15
   #muE1 <- (0.001*(Temp-20)^2 + 0.15)*(1+1.1*Rain/(1+Rain))
   
   # Larval mortality based on Abdelrazec & Gumel
-  muL1 <- 0.0025*(Temp-22)^2 + 0.2
+  muL1 <- 0.0025*(Temp-20)^2 + 0.2
   #muL1 <- (0.0025*(Temp-20)^2 + 0.2)*(1+1.1*Rain/(1+Rain))
   
   # Pupal mortality based on Abdelrazec & Gumel
-  muP1 <- 0.001*(Temp-22)^2 + 0.15
+  muP1 <- 0.001*(Temp-20)^2 + 0.15
   #muP1 <- (0.001*(Temp-20)^2 + 0.15)*(1+1.1*Rain/(1+Rain))
   
   # Adult seeking host mortality
-  #muAh1 <- 0.0005*(Temp-28)^2 + 0.04 This function can be modified to be used for the others.
+  #muAh1 <- 0.0005*(Temp-28)^2 + 0.04 # Adapted from Abdelrazec & Gumel. 
   muAh1 <- 0.1- 0.00667*Temp + 0.000148*Temp^2 # This data taken from P.Cailly et al., 2012
   #muAh1 <- (0.1- 0.00667*Temp + 0.000148*Temp^2)*(1+0.0005*Rain/(1+Rain))
   
   # Adult at rest mortality rate
-  muAr1 <- 0.1- 0.00667*Temp + 0.000148*Temp^2 # This data taken from P.Cailly et al., 2012
+  #muAr1 <- 0.0005*(Temp(t)-28)^2 + 0.04 # Adapted from Abdelrazec & Gumel. 
+  muAr1 <- 0.1- 0.00667*Temp + 0.000148*Temp^2 # Adapted from P. Cailly et al., 2012
   
   # Adult seeking oviposition site mortality rate
-  muAo1 <-  0.1- 0.00667*Temp + 0.000148*Temp^2 # This data taken from P.Cailly et al., 2012
+  #muAo1 <- 0.0005*(Temp(t)-28)^2 + 0.04 # Adapted from Abdelrazec & Gumel. 
+  muAo1 <-  0.1- 0.00667*Temp + 0.000148*Temp^2 # Taken from P.Cailly et al., 2012
   
   # Terms in the model
   recruit = b*rhoAo*(1-Ao/k)*Ao
@@ -123,9 +122,9 @@ muE2 = 0.01
 muL2 = 0.01
 deltaL = 0.05
 muP2 = 0.01
-muAh2 = 0.05
-muAr2 = 0.01
-muAo2 = 0.05
+muAh2 = 0.08 # Adapted from P.Cailly et al, 2012 
+muAr2 = 0.02 # To my best knowledge
+muAo2 = 0.08 # Adapted from P.Cailly et al, 2012 
 
 param <- c(b, k, muE2, muL2, deltaL, muP2, muAh2, muAr2, muAo2)
 
