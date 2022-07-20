@@ -5,7 +5,7 @@
 rm(list = ls())
 
 # Set working directory for the script
-setwd("/Users/jbaafi/Documents/mosquito-model/population model")
+#setwd("/Users/jbaafi/Documents/mosquito-model/population model")
 
 # Load packages
 pacman::p_load(pacman, deSolve, tidyverse, dplyr, rio)
