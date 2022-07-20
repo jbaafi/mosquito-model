@@ -13,6 +13,7 @@ pacman::p_load(pacman, deSolve, tidyverse, dplyr, rio)
 # Load daily rainfall data
 precip <- import("precipitation.csv")
 
+set.seed(123456) # To undo, just type set.seed(NULL)
 # Daily rainfall is considered as a random event
 Rain <- sample(precip$precip.val, length(t), replace = T, prob = precip$lnorm.pdf)
 
