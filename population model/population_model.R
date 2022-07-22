@@ -5,7 +5,7 @@
 rm(list = ls())
 
 # Set working directory for the script
-#setwd("/Users/jbaafi/Documents/mosquito-model/population model")
+setwd("/Users/jbaafi/Documents/mosquito-model/population model")
 
 # Load packages
 pacman::p_load(pacman, deSolve, tidyverse, dplyr, rio)
@@ -81,15 +81,17 @@ pop.model <- function(t, y, ...){
   # Adult seeking host mortality
   #muAh1 <- 0.0005*(Temp-28)^2 + 0.04 # Adapted from Abdelrazec & Gumel. 
   muAh1 <- 0.1- 0.00667*Temp + 0.000148*Temp^2 # This data taken from P.Cailly et al., 2012
-  #muAh1 <- (0.1- 0.00667*Temp + 0.000148*Temp^2)*(1+0.0005*Rain/(1+Rain))
+  #muAh1 <- (0.0005*(Temp-28)^2 + 0.04)*(1+0.0005*Rain/(1+Rain)) # From Abdelrazec & Gumel
   
   # Adult at rest mortality rate
   #muAr1 <- 0.0005*(Temp(t)-28)^2 + 0.04 # Adapted from Abdelrazec & Gumel. 
   muAr1 <- 0.1- 0.00667*Temp + 0.000148*Temp^2 # Adapted from P. Cailly et al., 2012
+  #muAr1 <- (0.0005*(Temp-28)^2 + 0.04)*(1+0.0005*Rain/(1+Rain)) # From Abdelrazec & Gumel
   
   # Adult seeking oviposition site mortality rate
   #muAo1 <- 0.0005*(Temp(t)-28)^2 + 0.04 # Adapted from Abdelrazec & Gumel. 
   muAo1 <-  0.1- 0.00667*Temp + 0.000148*Temp^2 # Taken from P.Cailly et al., 2012
+  #muAo1 <- (0.0005*(Temp-28)^2 + 0.04)*(1+0.0005*Rain/(1+Rain)) # From Abdelrazec & Gumel
   
   # Terms in the model
   recruit = b*rhoAo*(1-Ao/k)*Ao
