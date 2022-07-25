@@ -13,7 +13,7 @@ pacman::p_load(pacman, deSolve, tidyverse, dplyr, rio)
 # Load daily rainfall data
 precip <- import("precipitation.csv")
 
-set.seed(123456) # To undo, just type set.seed(NULL)
+set.seed(NULL)
 # Daily rainfall is considered as a random event
 Rain <- sample(precip$precip.val, length(t), replace = T, prob = precip$lnorm.pdf)
 
@@ -46,17 +46,17 @@ pop.model <- function(t, y, ...){
   rhoAo = exp(-0.015*(Temp-22)^2)*(1+1.2)*exp(-0.05*(Rain-10)^2)/(1.2+exp(-0.05*(Rain-10)^2)) 
   
   # Egg hatching/development function based on Abdelrazec & Gumel, 2017
-  FE <- 0.5*exp(-0.011*(Temp-22)^2)
+  #FE <- 0.5*exp(-0.011*(Temp-22)^2)
   # A function of temperature and rainfall
-  #FE <- 0.5*exp(-0.011*(Temp-22)^2)*(1+1.5)*exp(-0.05*(Rain-15)^2)/(1.5+exp(-0.05*(Rain-15)^2))
+  FE <- 0.5*exp(-0.011*(Temp-22)^2)*(1+1.5)*exp(-0.05*(Rain-15)^2)/(1.5+exp(-0.05*(Rain-15)^2))
   
   # Larvae development rate based on Abdelrazec & Gumel
-  FL <- 0.35*exp(-0.013*(Temp-22)^2)
-  #FL <- 0.35*exp(-0.013*(Temp-22)^2)*(1+1.5)*exp(-0.05*(Rain-15)^2)/(1.5+exp(-0.05*(Rain-15)^2))
+  #FL <- 0.35*exp(-0.013*(Temp-22)^2)
+  FL <- 0.35*exp(-0.013*(Temp-22)^2)*(1+1.5)*exp(-0.05*(Rain-15)^2)/(1.5+exp(-0.05*(Rain-15)^2))
   
   # Pupa development rate based on Abdelrazec & Gumel
-  FP <- 0.5*exp(-0.014*(Temp-22)^2)
-  #FP <- 0.5*exp(-0.014*(Temp-22)^2)*(1+1.5)*exp(-0.05*(Rain-15)^22)/(1.5+exp(-0.05*(Rain-15)^2))
+  #FP <- 0.5*exp(-0.014*(Temp-22)^2)
+  FP <- 0.5*exp(-0.014*(Temp-22)^2)*(1+1.5)*exp(-0.05*(Rain-15)^22)/(1.5+exp(-0.05*(Rain-15)^2))
   
   # Transition rate from host-seeking adult into resting state is not climate dependent. 
   # As far as they can get a bite, they go to rest. This is just a transition rate not a 
@@ -67,31 +67,31 @@ pop.model <- function(t, y, ...){
   FAr <- 0.43 + 0*exp(-0.01*(Temp(t)-22)^2) # Lutambi et al., 2013 (0.3 - 0.5 from Abiodun et al., 2016)
   
   # Egg mortality based on Abdelrazec & Gumel
-  muE1 <- 0.001*(Temp-20)^2 + 0.15
-  #muE1 <- (0.001*(Temp-20)^2 + 0.15)*(1+1.1*Rain/(1+Rain))
+  #muE1 <- 0.001*(Temp-20)^2 + 0.15
+  muE1 <- (0.001*(Temp-20)^2 + 0.15)*(1+1.1*Rain/(1+Rain))
   
   # Larval mortality based on Abdelrazec & Gumel
-  muL1 <- 0.0025*(Temp-20)^2 + 0.2
-  #muL1 <- (0.0025*(Temp-20)^2 + 0.2)*(1+1.1*Rain/(1+Rain))
+  #muL1 <- 0.0025*(Temp-20)^2 + 0.2
+  muL1 <- (0.0025*(Temp-20)^2 + 0.2)*(1+1.1*Rain/(1+Rain))
   
   # Pupal mortality based on Abdelrazec & Gumel
-  muP1 <- 0.001*(Temp-20)^2 + 0.15
-  #muP1 <- (0.001*(Temp-20)^2 + 0.15)*(1+1.1*Rain/(1+Rain))
+  #muP1 <- 0.001*(Temp-20)^2 + 0.15
+  muP1 <- (0.001*(Temp-20)^2 + 0.15)*(1+1.1*Rain/(1+Rain))
   
   # Adult seeking host mortality
   #muAh1 <- 0.0005*(Temp-28)^2 + 0.04 # Adapted from Abdelrazec & Gumel. 
-  muAh1 <- 0.1- 0.00667*Temp + 0.000148*Temp^2 # This data taken from P.Cailly et al., 2012
-  #muAh1 <- (0.0005*(Temp-28)^2 + 0.04)*(1+0.0005*Rain/(1+Rain)) # From Abdelrazec & Gumel
+  #muAh1 <- 0.1- 0.00667*Temp + 0.000148*Temp^2 # This data taken from P.Cailly et al., 2012
+  muAh1 <- (0.0005*(Temp-28)^2 + 0.04)*(1+0.0005*Rain/(1+Rain)) # From Abdelrazec & Gumel
   
   # Adult at rest mortality rate
   #muAr1 <- 0.0005*(Temp(t)-28)^2 + 0.04 # Adapted from Abdelrazec & Gumel. 
-  muAr1 <- 0.1- 0.00667*Temp + 0.000148*Temp^2 # Adapted from P. Cailly et al., 2012
-  #muAr1 <- (0.0005*(Temp-28)^2 + 0.04)*(1+0.0005*Rain/(1+Rain)) # From Abdelrazec & Gumel
+  #muAr1 <- 0.1- 0.00667*Temp + 0.000148*Temp^2 # Adapted from P. Cailly et al., 2012
+  muAr1 <- (0.0005*(Temp-28)^2 + 0.04)*(1+0.0005*Rain/(1+Rain)) # From Abdelrazec & Gumel
   
   # Adult seeking oviposition site mortality rate
   #muAo1 <- 0.0005*(Temp(t)-28)^2 + 0.04 # Adapted from Abdelrazec & Gumel. 
-  muAo1 <-  0.1- 0.00667*Temp + 0.000148*Temp^2 # Taken from P.Cailly et al., 2012
-  #muAo1 <- (0.0005*(Temp-28)^2 + 0.04)*(1+0.0005*Rain/(1+Rain)) # From Abdelrazec & Gumel
+  #muAo1 <-  0.1- 0.00667*Temp + 0.000148*Temp^2 # Taken from P.Cailly et al., 2012
+  muAo1 <- (0.0005*(Temp-28)^2 + 0.04)*(1+0.0005*Rain/(1+Rain)) # From Abdelrazec & Gumel
   
   # Terms in the model
   recruit = b*rhoAo*(1-Ao/k)*Ao
