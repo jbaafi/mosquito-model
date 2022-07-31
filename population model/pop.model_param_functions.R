@@ -24,10 +24,6 @@ phi.t <- 20.43*exp(-0.015*(temp(t)-28)^2) # This is a modification of function b
 phi.r <- (3+1.2)*exp(-0.010*(rain-22)^2)/(1.2+exp(-0.020*(rain-22)^2))# This will be a best option I think but any is good to use
 #phi.r <- (3+1.2)*exp(-0.010*(rain-21)^2)/(1.2+exp(-0.020*(rain-21)^2))
 
-#Plot
-plot(temp(t), phi.r, "l", lwd=2, col="yellow")
-plot(t, phi.r, "l")
-
 # Oviposition as a function of temp and rain
 phi.tr <- function(temp, rain){
   20.43*exp(-0.015*(temp-28)^2)*(1+1.2)*exp(-0.010*(rain-22)^2)/(1.2+exp(-0.020*(rain-22)^2))
@@ -35,11 +31,33 @@ phi.tr <- function(temp, rain){
 
 # ------------------------------------------------------------------
 # Egg development rate
-rhoE.t <- exp(-0.014*(temp-24)^2)
-# A function of  rainfall
-rhoE.r <- (1+1.5)*exp(-0.009*(rain-21)^2)/(1.5+exp(-0.025*(rain-21)^2))
+rhoE.t <- exp(-0.014*(temp-23)^2)
 
-# Egg mortality 
+# A function of  rainfall
+rhoE.r <- (1+1.5)*exp(-0.009*(rain-22)^2)/(1.5+exp(-0.025*(rain-22)^2))
+
+# Combined temp and rainfall dependent function 
+rhoE.tr <- exp(-0.014*(temp-23)^2)*(1+1.5)*exp(-0.009*(rain-23)^2)/(1.5+exp(-0.025*(rain-23)^2))
+
+# Egg mortality
+muE.t <- 0.001*(temp-20)^2 + 0.15
+muE.r <- 0.1*exp(0.45*(rain-5))/(0.1*exp(0.45*(rain-5)) + (1-0.1))
+
+# Combined effect of temp and rain
+muE.tr <- (0.001*(temp-20)^2 + 0.15)*(0.1*exp(0.45*(rain-5))/(0.1*exp(0.45*(rain-5)) + (1-0.1)))
+
+# Larvae Development
+rhoL.t <- 0.35*exp(-0.013*(temp-22)^2)
+rhoL.r <- (1+1.5)*exp(-0.009*(rain-16)^2)/(1.5+exp(-0.025*(rain-16)^2))
+
+# Larvae Mortality
+
+
+
+
+
+
+
 
 
 
